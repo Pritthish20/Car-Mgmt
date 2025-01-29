@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 //middleware
 
 app.use(cors({
-      origin: [ "http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
+      origin: "*", 
       credentials: true
     }));
 
