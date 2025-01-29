@@ -27,8 +27,7 @@ app.get("/", (req, res) => {
 
 app.use(
     cors({
-      origin: [ "http://localhost:5173","https://car-mgmt-2kse.vercel.app/"], 
-      credentials: true,
+      origin: [ "http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
     })
   );
 
