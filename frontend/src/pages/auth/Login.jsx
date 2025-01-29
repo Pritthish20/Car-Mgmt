@@ -1,11 +1,9 @@
-import { useState} from "react";
-import {  useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserInfo } from "../../redux/slice/authSlice";
 import { useLoginMutation } from "../../redux/api/authApi";
-
-
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +29,7 @@ const Login = () => {
     try {
       const res = await login({ ...formData }).unwrap();
       dispatch(setUserInfo({ ...res }));
-      navigate('/')
+      navigate('/');
       toast.success("Logged in successfully!");
     } catch (error) {
       console.error("Login failed", error);
@@ -66,8 +64,21 @@ const Login = () => {
           type="submit"
           className="w-full p-3 bg-orange-400 text-white rounded-md hover:bg-orange-500"
         >
-          {isLoading ? "Loging In ..." : "Log In"}
+          {isLoading ? "Logging In ..." : "Log In"}
         </button>
+        
+        {/* Signup Link */}
+        <div className="mt-4 text-center">
+          <p className="text-gray-400">
+            Don't have an account?{" "}
+            <a
+              href="/signup"
+              className="text-orange-400 hover:text-orange-500"
+            >
+              Sign Up
+            </a>
+          </p>
+        </div>
       </form>
     </div>
   );
