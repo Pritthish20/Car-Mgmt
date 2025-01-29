@@ -28,9 +28,6 @@ app.get("/", (req, res) => {
 app.use(cors({
       origin: [ "http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
       credentials: true
-      methods: ['GET','POST','HEAD','PUT','PATCH','DELETE'],
-      allowedHeaders: ['Content-Type'],
-      exposedHeaders: ['Content-Type']
     }));
 
 app.use(express.json());
