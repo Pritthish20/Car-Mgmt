@@ -16,13 +16,13 @@ const uploadFile = async (fileBuffer) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           folder: "Car-Mgmt",
-          width: 1080,
-          height: 1620,
-          aspect_ratio: "2:3",
-          crop: "fill",
-          gravity: "auto",
-          allowed_formats: ["png", "jpg", "jpeg", "svg"],
-          quality: "auto",
+          width: 1600, 
+          height: 900, 
+          aspect_ratio: "16:9",
+          crop: "limit", 
+          gravity: "center", 
+          allowed_formats: ["png", "jpg", "jpeg", "svg", "webp"], 
+          quality: "auto:good", 
           format: "auto",
         },
         (error, result) => {

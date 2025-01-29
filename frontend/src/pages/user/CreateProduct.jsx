@@ -1,35 +1,37 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useCreateProductMutation, useUploadImageMutation } from "../../redux/api/productApi";
 
 const CreateProduct = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     tags: { car_type: "", company: "", dealer: "" },
-    images: [],
   });
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedPreviewImages, setSelectedPreviewImages] = useState([]);
 
-  const handleImageUpload = async (e) => {
+  const navigate = useNavigate();
+  const [createProduct] = useCreateProductMutation();
+  const [uploadImage] = useUploadImageMutation();
+
+  const handleImageSelected = async (e) => {
     const files = Array.from(e.target.files);
-    const imageUrls = [];
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setSelectedImages((prev) => [...prev, ...files]);
+    setSelectedPreviewImages((prev) => [...prev, ...previewUrls]);
+  };
 
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      try {
-        const { data } = await axios.post("/api/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        imageUrls.push(data.image);
-      } catch (err) {
-        setError("Image upload failed");
-      }
-    }
-
-    setFormData({ ...formData, images: imageUrls });
+  const handleRemoveSelectedImage = (index) => {
+    const updatedImages = [...selectedImages];
+    const updatedPreviews = [...selectedPreviewImages];
+    updatedImages.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+    setSelectedImages(updatedImages);
+    setSelectedPreviewImages(updatedPreviews);
   };
 
   const handleInputChange = (e) => {
@@ -47,28 +49,41 @@ const CreateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, description, tags, images } = formData;
 
-    if (!title || !description || !tags.car_type || !tags.company || !tags.dealer || images.length === 0) {
-      setError("Please fill in all fields and upload images.");
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.tags.car_type ||
+      !formData.tags.company ||
+      !formData.tags.dealer ||
+      selectedImages.length === 0
+    ) {
+      toast.error("Please fill in all fields and upload images.");
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await axios.post("/api/products", formData);
-      console.log("Product created", response.data);
+      setLoading(true);
+      const imageForm = new FormData();
+      selectedImages.forEach((file) => {
+        imageForm.append("images", file);
+      });
+
+      const response = await uploadImage(imageForm).unwrap();
+      const imageUrls = response.images;
+
+      await createProduct({ ...formData, images: imageUrls }).unwrap();
+      toast.success("Product created successfully!");
       setLoading(false);
+      navigate("/");
     } catch (err) {
-      setError("Failed to create product.");
-      setLoading(false);
+      toast.error("Failed to create product.");
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-800 text-white rounded-md shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Create New Product</h2>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit}>
         {/* Title */}
@@ -152,17 +167,27 @@ const CreateProduct = () => {
             id="images"
             name="images"
             multiple
-            onChange={handleImageUpload}
+            onChange={handleImageSelected}
             className="w-full px-4 py-2 bg-gray-700 text-white rounded-md"
             accept="image/*"
           />
         </div>
 
+        {/* Selected Image Previews */}
         <div className="mb-6">
-          {formData.images.length > 0 && (
+          {selectedPreviewImages.length > 0 && (
             <div className="flex flex-wrap gap-4">
-              {formData.images.map((image, index) => (
-                <img key={index} src={image} alt={`Car image ${index + 1}`} className="w-32 h-32 object-cover rounded-md" />
+              {selectedPreviewImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <img src={image} alt={`Preview ${index + 1}`} className="w-32 h-32 object-cover rounded-md" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSelectedImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-sm"
+                  >
+                    &times;
+                  </button>
+                </div>
               ))}
             </div>
           )}

@@ -18,7 +18,7 @@ export const authApiSlice=apiSlice.injectEndpoints({
         }),
         signin:builder.mutation({
             query:(data)=>({
-                url:`${BASE_URL}${USER_URL}/signin`,
+                url:`${BASE_URL}${USER_URL}/signup`,
                 method: 'POST',
                 body: data,
             }),

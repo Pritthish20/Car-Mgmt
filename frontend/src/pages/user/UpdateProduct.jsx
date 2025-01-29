@@ -1,62 +1,65 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom"; // Updated to useNavigate
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  useGetSpecificProductQuery,
+  useUpdateProductMutation,
+  useUploadImageMutation,
+} from "../../redux/api/productApi";
 
 const UpdateProduct = () => {
-  const { carId } = useParams();
-  const navigate = useNavigate(); // Updated to useNavigate
+  const { pId } = useParams();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     tags: { car_type: "", company: "", dealer: "" },
     images: [],
-    removeImages: [],
   });
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  // const [imageToRemove, setImageToRemove] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedPreviewImages, setSelectedPreviewImages] = useState([]);
+  const [removeImages, setRemoveImages] = useState([]);
+
+  const { data: product } = useGetSpecificProductQuery(pId);
+  const [updateProduct] = useUpdateProductMutation();
+  const [uploadImage] = useUploadImageMutation();
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        // const response = await axios.get(`/api/products/${carId}`);
-        const product = response.data;
-
-        setFormData({
-          title: product.title,
-          description: product.description,
-          tags: product.tags,
-          images: product.images,
-          removeImages: [],
-        });
-      } catch (err) {
-        setError("Failed to fetch product details.");
-      }
-    };
-
-    fetchProduct();
-  }, [carId]);
-
-  const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    const imageUrls = [];
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      try {
-        // const { data } = await axios.post("/api/upload", formData, {
-        //   headers: { "Content-Type": "multipart/form-data" },
-        // });
-        imageUrls.push(data.image);
-      } catch (err) {
-        setError("Image upload failed");
-      }
+    if (product) {
+      setFormData({
+        title: product.title,
+        description: product.description,
+        tags: product.tags,
+        images: product.images,
+      });
     }
+  }, [product]);
 
-    setFormData({ ...formData, images: [...formData.images, ...imageUrls] });
+  const handleImageSelected = (e) => {
+    const files = Array.from(e.target.files);
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setSelectedImages((prev) => [...prev, ...files]);
+    setSelectedPreviewImages((prev) => [...prev, ...previewUrls]);
+  };
+
+  const handleRemoveImage = (image) => {
+    setRemoveImages((prev) => [...prev, image]);
+    setFormData({
+      ...formData,
+      images: formData.images.filter((img) => img !== image),
+    });
+  };
+
+  const handleRemoveSelectedImage = (index) => {
+    const updatedImages = [...selectedImages];
+    const updatedPreviews = [...selectedPreviewImages];
+    updatedImages.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+    setSelectedImages(updatedImages);
+    setSelectedPreviewImages(updatedPreviews);
   };
 
   const handleInputChange = (e) => {
@@ -72,47 +75,65 @@ const UpdateProduct = () => {
     }
   };
 
-  const handleRemoveImage = (image) => {
-    setFormData({
-      ...formData,
-      removeImages: [...formData.removeImages, image],
-    });
-
-    setFormData({
-      ...formData,
-      images: formData.images.filter((img) => img !== image),
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, description, tags, images, removeImages } = formData;
 
-    if (!title || !description || !tags.car_type || !tags.company || !tags.dealer) {
-      setError("Please fill in all fields.");
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.tags.car_type ||
+      !formData.tags.company ||
+      !formData.tags.dealer
+    ) {
+      toast.error("Please fill in all fields.");
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await axios.put(`/api/products/${carId}`, { ...formData, removeImages });
+      setLoading(true);
+
+      // Handle image uploads if any
+      let uploadedImages = [];
+      if (selectedImages.length > 0) {
+        const imageForm = new FormData();
+        selectedImages.forEach((file) => {
+          imageForm.append("images", file);
+        });
+
+        const response = await uploadImage(imageForm).unwrap();
+        uploadedImages = response.images;
+      }
+
+      const updatedProductData = {
+        ...formData,
+        images: [...formData.images, ...uploadedImages],
+        removeImages,
+      };
+      console.log(updatedProductData);
+      console.log(pId);
+
+
+      await updateProduct({ id:pId, updatedProduct:{...updatedProductData} }).unwrap();
+      toast.success("Product updated successfully!");
       setLoading(false);
-      navigate(`/products/${carId}`);  // Updated to use navigate
+      navigate(`/products/${pId}`);
     } catch (err) {
       setLoading(false);
-      setError("Failed to update product.");
+      toast.error("Failed to update product.");
+      console.error(err);
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-800 text-white rounded-md shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Update Product</h2>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit}>
         {/* Title */}
         <div className="mb-4">
-          <label htmlFor="title" className="block text-lg mb-2">Title</label>
+          <label htmlFor="title" className="block text-lg mb-2">
+            Title
+          </label>
           <input
             type="text"
             id="title"
@@ -127,7 +148,9 @@ const UpdateProduct = () => {
 
         {/* Description */}
         <div className="mb-4">
-          <label htmlFor="description" className="block text-lg mb-2">Description</label>
+          <label htmlFor="description" className="block text-lg mb-2">
+            Description
+          </label>
           <textarea
             id="description"
             name="description"
@@ -143,7 +166,9 @@ const UpdateProduct = () => {
         {/* Tags */}
         <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="car_type" className="block text-lg mb-2">Car Type</label>
+            <label htmlFor="car_type" className="block text-lg mb-2">
+              Car Type
+            </label>
             <input
               type="text"
               id="car_type"
@@ -156,7 +181,9 @@ const UpdateProduct = () => {
             />
           </div>
           <div>
-            <label htmlFor="company" className="block text-lg mb-2">Company</label>
+            <label htmlFor="company" className="block text-lg mb-2">
+              Company
+            </label>
             <input
               type="text"
               id="company"
@@ -169,7 +196,9 @@ const UpdateProduct = () => {
             />
           </div>
           <div>
-            <label htmlFor="dealer" className="block text-lg mb-2">Dealer</label>
+            <label htmlFor="dealer" className="block text-lg mb-2">
+              Dealer
+            </label>
             <input
               type="text"
               id="dealer"
@@ -185,20 +214,22 @@ const UpdateProduct = () => {
 
         {/* Image Upload */}
         <div className="mb-4">
-          <label htmlFor="images" className="block text-lg mb-2">Upload Images (Max 10)</label>
+          <label htmlFor="images" className="block text-lg mb-2">
+            Upload Images (Max 10)
+          </label>
           <input
             type="file"
             id="images"
             name="images"
             multiple
-            onChange={handleImageUpload}
+            onChange={handleImageSelected}
             className="w-full px-4 py-2 bg-gray-700 text-white rounded-md"
             accept="image/*"
           />
         </div>
 
-        {/* Image Previews and Removal */}
-        <div className="mb-6">
+        {/* Existing Images */}
+        <div className="mb-4">
           {formData.images.length > 0 && (
             <div className="flex flex-wrap gap-4">
               {formData.images.map((image, index) => (
@@ -207,6 +238,26 @@ const UpdateProduct = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(image)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-sm"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Selected Image Previews */}
+        <div className="mb-6">
+          {selectedPreviewImages.length > 0 && (
+            <div className="flex flex-wrap gap-4">
+              {selectedPreviewImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <img src={image} alt={`Preview ${index + 1}`} className="w-32 h-32 object-cover rounded-md" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSelectedImage(index)}
                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-sm"
                   >
                     &times;

@@ -1,9 +1,9 @@
-import React from 'react'
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const UserRoutes = () => {
-  return (
-    <div>UserRoutes</div>
-  )
-}
+const UserRoute = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  return userInfo ? <Outlet /> : <Navigate to="/login" replace />;
+};
 
-export default UserRoutes
+export default UserRoute;

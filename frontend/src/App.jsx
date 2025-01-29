@@ -13,7 +13,7 @@ const App = () => {
     <>
       <ToastContainer/>
       {!noNavbarRoutes.includes(location.pathname) && <Navbar/>}
-      <div className='py-1 h-screen bg-gray-700 '>
+      <div className='py-1 min-h-screen h-auto bg-gray-700 '>
       <main >
         <Outlet/>
       </main>

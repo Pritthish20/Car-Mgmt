@@ -1,9 +1,31 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import {toast} from 'react-toastify'
+import { logout } from "../redux/slice/authSlice";
+import { useLogoutMutation } from "../redux/api/authApi";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [logoutCall] = useLogoutMutation();
+
+  const logoutHandler = async () => {
+    try {
+      await logoutCall().unwrap();
+      dispatch(logout());
+      navigate("/login");
+      toast.success("Logged out successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to log out. Please try again!");
+    }
+  };
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -17,12 +39,15 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6">
-          <Link to="/all-products" className="hover:text-orange-400">
+          <Link to="/" className="hover:text-orange-400">
             All Products
           </Link>
           <Link to="/create-product" className="hover:text-orange-400">
             Create Product
           </Link>
+          <button onClick={logoutHandler} className="hover:text-orange-400">
+            Log Out
+          </button>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -37,12 +62,15 @@ const Navbar = () => {
       <div
         className={`md:hidden ${isMenuOpen ? "block" : "hidden"} bg-gray-800 px-6 py-3`}
       >
-        <Link to="/all-products" className="block py-2 text-lg text-white hover:text-orange-400">
+        <Link to="/" className="block py-2 text-lg text-white hover:text-orange-400">
           All Products
         </Link>
         <Link to="/create-product" className="block py-2 text-lg text-white hover:text-orange-400">
           Create Product
         </Link>
+        <button onClick={logoutHandler} className="block py-2 text-lg text-white hover:text-orange-400">
+          Log Out
+        </button>
       </div>
     </nav>
   );

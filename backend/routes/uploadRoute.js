@@ -1,57 +1,50 @@
-import path from "path";
 import express from "express";
 import multer from "multer";
-import {uploadFile} from "../config/cloudinary.js";
+import { uploadFile } from "../config/cloudinary.js";
 
 const router = express.Router();
 
-//upload path
-
-const storage = multer.diskStorage({
-  filename: (req, file, cb) => {
-    const extname = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${Date.now()}${extname}`);
-  },
-});
+// Use memory storage (avoid writing to disk)
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const filetypes = /jpe?g|png|webp/;
-  const mimetypes = /image\/jpe?g||image\/png||image\/webp/;
-
-  const extname = path.extname(file.originalname);
-  const mimetype = file.mimetype;
-
-  if (filetypes.test(extname) && mimetypes.test(mimetype)) {
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Images only"), false);
+    cb(new Error("Only JPEG, PNG, and WEBP images are allowed"), false);
   }
 };
 
 const upload = multer({ storage, fileFilter });
-// const uploadSingleImage = upload.single("image");
 
-router.post("/", upload.single("image"),async (req, res) => {
-   try {
-
-    if(!req.file){
-      res.status(400).send({message: "No Image Provided"});
+// Route to upload up to 10 images
+router.post("/", upload.array("images", 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).send({ message: "No images provided" });
     }
 
-    const result=await uploadFile(req.file.path)
+    // Upload each image buffer to Cloudinary
+    const imageUploadPromises = req.files.map(file => uploadFile(file.buffer));
 
-    // console.log(result);
+    // Wait for all uploads to complete
+    const results = await Promise.all(imageUploadPromises);
+
+    // Extract secure URLs from Cloudinary responses
+    const uploadedImages = results.map(result => result.secure_url);
 
     res.status(201).send({
-      message: "Image Upload Successfully",
-      image:result.secure_url,
-    })
-
-
-    
-   } catch (error) {
-    res.status(500).send({message:"Image upload failed",error:error.message});
-   }
-  });
+      message: "Images uploaded successfully",
+      images: uploadedImages,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "Image upload failed",
+      error: error.message,
+    });
+  }
+});
 
 export default router;

@@ -13,17 +13,19 @@ import ProductList from './pages/user/ProductList.jsx'
 import ProductDetails from './pages/user/ProductDetails.jsx'
 import UpdateProduct from './pages/user/UpdateProduct.jsx'
 import CreateProduct from './pages/user/CreateProduct.jsx'
+import UserRoute from './components/UserRoutes.jsx'
 
 const routes=createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} >
       <Route path='/login' element={<Login/>}/>
       <Route path='/signup' element={<Signup/>}/>
-
-      <Route path='/all-products' element={<ProductList />} />
+      <Route path='/' element={<ProductList />} />
+      <Route  path='' element={<UserRoute/>}>
       <Route path='/products/:pId' element={<ProductDetails />} />
       <Route path='/update-product/:pId' element={<UpdateProduct />} />
       <Route path='/create-product' element={<CreateProduct />} />
+      </Route>
 
 
     </Route>

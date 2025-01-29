@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState} from "react";
+import {  useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { setUserInfo } from "../../redux/slice/authSlice";
+import { useSigninMutation } from "../../redux/api/authApi";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -8,7 +12,10 @@ const Signup = () => {
     password: "",
   });
 
-  const { name, email, password } = formData;
+  const dispatch = useDispatch();
+    const navigate = useNavigate();
+  
+    const [signup, { isLoading }] = useSigninMutation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +28,13 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signup", formData);
-      console.log(response.data);
-      // Redirect or show success message
+      const res = await signup({...formData }).unwrap();
+      dispatch(setUserInfo({ ...res }));
+      navigate('/')
+      toast.success("Signed in successfully!");
     } catch (error) {
-      console.error("Sign Up failed", error);
+      console.error("Login failed", error);
+      toast.error("Error occurred, please try again.");
     }
   };
 
@@ -39,7 +48,7 @@ const Signup = () => {
         <input
           type="text"
           name="name"
-          value={name}
+          value={formData.name}
           onChange={handleChange}
           placeholder="Full Name"
           className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"
@@ -47,7 +56,7 @@ const Signup = () => {
         <input
           type="email"
           name="email"
-          value={email}
+          value={formData.email}
           onChange={handleChange}
           placeholder="Email"
           className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"
@@ -55,7 +64,7 @@ const Signup = () => {
         <input
           type="password"
           name="password"
-          value={password}
+          value={formData.password}
           onChange={handleChange}
           placeholder="Password"
           className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"

@@ -32,7 +32,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    getSpecificMovie: builder.query({
+    getSpecificProduct: builder.query({
       query: (id) => `${BASE_URL}${CARS_URL}/${id}`,
     }),
 
@@ -53,6 +53,6 @@ export const{
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useGetSpecificMovieQuery,
+  useGetSpecificProductQuery,
   useUploadImageMutation,
  }=productApiSlice;

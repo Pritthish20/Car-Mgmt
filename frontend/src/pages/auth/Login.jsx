@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState} from "react";
+import {  useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { setUserInfo } from "../../redux/slice/authSlice";
+import { useLoginMutation } from "../../redux/api/authApi";
+
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -7,7 +13,10 @@ const Login = () => {
     password: "",
   });
 
-  const { email, password } = formData;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,11 +29,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
-      console.log(response.data);
-      // Store token, redirect to dashboard, etc.
+      const res = await login({ ...formData }).unwrap();
+      dispatch(setUserInfo({ ...res }));
+      navigate('/')
+      toast.success("Logged in successfully!");
     } catch (error) {
       console.error("Login failed", error);
+      toast.error("Invalid email or password!");
     }
   };
 
@@ -38,7 +49,7 @@ const Login = () => {
         <input
           type="email"
           name="email"
-          value={email}
+          value={formData.email}
           onChange={handleChange}
           placeholder="Email"
           className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"
@@ -46,7 +57,7 @@ const Login = () => {
         <input
           type="password"
           name="password"
-          value={password}
+          value={formData.password}
           onChange={handleChange}
           placeholder="Password"
           className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"
@@ -55,7 +66,7 @@ const Login = () => {
           type="submit"
           className="w-full p-3 bg-orange-400 text-white rounded-md hover:bg-orange-500"
         >
-          Login
+          {isLoading ? "Loging In ..." : "Log In"}
         </button>
       </form>
     </div>
