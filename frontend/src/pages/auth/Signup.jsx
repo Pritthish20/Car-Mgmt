@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Login = () => {
+const Signup = () => {
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
 
-  const { email, password } = formData;
+  const { name, email, password } = formData;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,11 +21,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const response = await axios.post("http://localhost:5000/api/auth/signup", formData);
       console.log(response.data);
-      // Store token, redirect to dashboard, etc.
+      // Redirect or show success message
     } catch (error) {
-      console.error("Login failed", error);
+      console.error("Sign Up failed", error);
     }
   };
 
@@ -34,7 +35,15 @@ const Login = () => {
         className="w-full max-w-md p-6 bg-gray-900 rounded-lg shadow-lg"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-3xl text-center text-orange-400 mb-6">Login</h2>
+        <h2 className="text-3xl text-center text-orange-400 mb-6">Sign Up</h2>
+        <input
+          type="text"
+          name="name"
+          value={name}
+          onChange={handleChange}
+          placeholder="Full Name"
+          className="w-full p-3 mb-4 rounded-md bg-gray-700 text-white"
+        />
         <input
           type="email"
           name="email"
@@ -55,11 +64,11 @@ const Login = () => {
           type="submit"
           className="w-full p-3 bg-orange-400 text-white rounded-md hover:bg-orange-500"
         >
-          Login
+          Sign Up
         </button>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Signup;
