@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test-cors", (req, res) => {
-  res.send( "CORS is working!" );
+  res.json({ message: "CORS is working!" });
 });
 
 
