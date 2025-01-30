@@ -13,7 +13,22 @@ const ProductList = () => {
     toast.error("Failed to load products.");
   }
 
-
+  // fetch("https://car-mgmt-one.vercel.app/api/v1/user/login", {
+  //   method: "POST",
+  //   credentials: "include",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "Accept": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     email: "test1@gmail.com",
+  //     password: "1234",
+  //   }),
+  // })
+  //   .then(res => res.json())
+  //   .then(console.log)
+  //   .catch(console.error);
+  
   
 
   return (
