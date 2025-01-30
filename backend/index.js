@@ -48,7 +48,7 @@ app.use("/api/v1/user",userRoute);
 app.use("/api/v1/cars",carRoute);
 app.use("/api/v1/upload",uploadRoute);
 
-app.get("/api/v1/docs", (req, res) => {
+app.get("/docs", (req, res) => {
   res.redirect("https://documenter.getpostman.com/view/39575061/2sAYX2N4VN");
 });
 
