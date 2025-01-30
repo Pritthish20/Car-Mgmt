@@ -13,10 +13,7 @@ const ProductList = () => {
     toast.error("Failed to load products.");
   }
 
-  fetch("https://car-mgmt-one.vercel.app/test-cors", {
-    method: "GET",
-    credentials: "include"
-  }).then(res => res.json()).then(console.log).catch(console.error);
+
   
 
   return (
