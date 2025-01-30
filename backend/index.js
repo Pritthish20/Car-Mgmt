@@ -18,6 +18,23 @@ connectDB();
 
 const app=express();
 
+
+
+//middleware
+
+app.use(cors({
+      origin: ["http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE"], 
+      allowedHeaders: ["Content-Type", "Authorization"]
+    }));
+ 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended:true }));
+app.use(cookieParser());
+
+
 app.get("/", (req, res) => {
   res.send("server is up!!!");
 });
@@ -26,19 +43,6 @@ app.get("/test-cors", (req, res) => {
   res.json({ message: "CORS is working!" });
 });
 
-
-
-//middleware
-
-app.use(cors({
-      origin: ["http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
-      credentials: true
-    }));
- 
-
-app.use(express.json());
-app.use(express.urlencoded({ extended:true }));
-app.use(cookieParser());
 
 const port=process.env.PORT || 3000;
 //console.log(process.env.PORT);
