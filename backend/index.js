@@ -23,7 +23,7 @@ const app=express();
 //middleware
 
 app.use(cors({
-      origin: "https://car-mgmt-2kse.vercel.app", 
+      origin: ["http://localhost:5173","https://car-mgmt-2kse.vercel.app"], 
       credentials: true,
     }));
  
