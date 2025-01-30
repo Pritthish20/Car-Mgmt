@@ -22,6 +22,11 @@ app.get("/", (req, res) => {
   res.send("server is up!!!");
 });
 
+app.get("/test-cors", (req, res) => {
+  res.send( "CORS is working!" );
+});
+
+
 
 //middleware
 
