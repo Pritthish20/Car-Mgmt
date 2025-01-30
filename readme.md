@@ -14,7 +14,7 @@ A robust full-stack application for managing car listings with advanced features
 - [Deployment](#deployment)
 
 ## 🌐 Demo
-- Live Demo: [Live Link](https://car-mgmt-2kse.vercel.app/create-product)
+- Live Demo: [Live Link](https://car-mgmt-2kse.vercel.app)
 - API Documentation: [Postman Docs](https://documenter.getpostman.com/view/39575061/2sAYX2N4VN)
 
 ## ✨ Features
