@@ -5,7 +5,7 @@ const ProductCard = ({ product }) => {
   const { title, description, tags, images, price } = product;
 
   return (
-    <Link to={`/products/${product._id}`} className="max-w-2xl mx-auto p-4 bg-gray-800 text-white rounded-md shadow-md flex flex-col justify-evenly">
+    <Link to={`/products/${product._id}`} className="max-w-2xl mx-auto p-4 bg-gray-800 text-white rounded-md shadow-md flex flex-col justify-evenly h-full">
       {/* Product Title */}
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
 
@@ -15,15 +15,15 @@ const ProductCard = ({ product }) => {
           <img
             src={images[0]} // Display only the first image
             alt="Product Image"
-            className="w-full h-32 object-cover rounded-md"
+            className="w-full h-80 w object-contain rounded-md"
           />
         ) : (
-          <div className="w-full h-32 bg-gray-700 rounded-md"></div>
+          <div className="w-full h-80 bg-gray-700 rounded-md"></div>
         )}
       </div>
 
       {/* Product Description */}
-      <p className="mb-4 text-sm">{description}</p>
+      <p className="mb-4 text-sm">{description.substring(0,33)}</p>
 
       {/* Product Tags */}
       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -39,12 +39,6 @@ const ProductCard = ({ product }) => {
           <span className="font-bold">Dealer</span>
           <p>{tags.dealer}</p>
         </div>
-      </div>
-
-      {/* Price */}
-      <div className="mb-4">
-        <span className="text-lg font-bold">Price:</span>
-        <p>{price ? `$${price}` : "Not Available"}</p>
       </div>
 
       {/* Action Button */}
