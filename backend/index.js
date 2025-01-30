@@ -37,9 +37,6 @@ app.get("/", (req, res) => {
   res.send("server is up!!!");
 });
 
-app.get("/test-cors", (req, res) => {
-  res.json({ message: "CORS is working!" });
-});
 
 
 const port=process.env.PORT || 3000;

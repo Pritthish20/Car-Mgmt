@@ -9,9 +9,7 @@ const store=configureStore({
         [apiSlice.reducerPath]: apiSlice.reducer,
         auth:authReducer,
     },
-    middleware: (getDefaultMiddleware)=>getDefaultMiddleware({
-        serializableCheck: false,
-}).concat(apiSlice.middleware),
+    middleware: (getDefaultMiddleware)=>getDefaultMiddleware().concat(apiSlice.middleware),
     devTools: true,
 })
 
