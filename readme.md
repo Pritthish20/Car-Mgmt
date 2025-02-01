@@ -129,12 +129,11 @@ npm start
 ```
 car-management/
 ├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   └── utils/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── utils/
 │   └── package.json
 └── frontend/
     ├── public/
