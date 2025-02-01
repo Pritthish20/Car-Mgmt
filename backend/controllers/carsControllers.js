@@ -120,9 +120,20 @@ export const specificProduct=async(req,res)=>{
 export const deleteProduct=async(req,res)=>{
     try {
         const { carId } = req.params;
-    
-        const car = await Cars.findOneAndDelete({ _id: carId, user: req.user._id });
+
+        // Find the car
+        const car = await Cars.findOne({ _id: carId, user: req.user._id });
         if (!car) return res.status(404).json({ error: "Car not found or unauthorized" });
+
+        // Delete images from Cloudinary
+        if (car.images && car.images.length > 0) {
+            for (const imageUrl of car.images) {
+                const publicId = imageUrl.split('/').pop().split('.')[0]; // Extract publicId from URL
+                await cloudinary.uploader.destroy(`Car-Mgmt/${publicId}`);
+            }
+        }
+    
+        await Cars.findOneAndDelete({ _id: carId, user: req.user._id });
     
         res.status(200).json({ message: "Car deleted successfully" });
       } catch (error) {
